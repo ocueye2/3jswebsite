@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js GLB Animation with Scrollable Camera and HDR</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <!-- Load Three.js core library -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
+  <!-- Load additional Three.js loaders -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/RGBELoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
+  <script>
+    // Scene setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Tone mapping and exposure
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1;
+
+    // HDR environment map
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
+
+    new THREE.RGBELoader()
+      .setPath('hdr/')
+      .load('test.hdr', function (texture) {
+        const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+        scene.environment = envMap;
+        scene.background = envMap;
+
+        texture.dispose();
+        pmremGenerator.dispose();
+      });
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(ambientLight);
+
+    // Load GLB model with animations
+    const loader = new THREE.GLTFLoader();
+    let mixer;
+    loader.load('scenes/test.glb', (gltf) => {
+      const model = gltf.scene;
+      scene.add(model);
+
+      // Apply environment map to model's materials
+      model.traverse((child) => {
+        if (child.isMesh && child.material.isMeshStandardMaterial) {
+          child.material.envMap = scene.environment;
+          child.material.needsUpdate = true;
+        }
+      });
+
+      // Set up animation mixer
+      mixer = new THREE.AnimationMixer(model);
+      gltf.animations.forEach((clip) => {
+        mixer.clipAction(clip).play();
+      });
+    });
+
+    // Scroll event to move camera vertically
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      camera.position.y = scrollY * 0.1; // Adjust sensitivity as needed
+    });
+
+    // Animation loop
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const delta = clock.getDelta();
+      if (mixer) mixer.update(delta);
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Scroll event for camera position adjustment
+    function onScroll(event) {
+      const scrollAmount = event.deltaY || event.detail || -event.wheelDelta;
+      camera.position.y -= scrollAmount * 0.01; // Adjust the multiplier as needed
+    }
+    window.addEventListener('wheel', onScroll, { passive: true });
+  </script>
+</body>
+</html>
