@@ -147,6 +147,35 @@
       targetY += scrollAmount * -0.01; // Adjust multiplier for scroll sensitivity
     }, { passive: true });
 
+    let touchStartY = 0;
+let touchEndY = 0;
+
+// Touch start event
+window.addEventListener('touchstart', (event) => {
+  // Store the initial touch position
+  touchStartY = event.touches[0].clientY;
+});
+
+// Touch move event
+window.addEventListener('touchmove', (event) => {
+  // Prevent scrolling behavior
+  event.preventDefault();
+
+  // Calculate the swipe distance
+  touchEndY = event.touches[0].clientY;
+  const swipeDistance = touchEndY - touchStartY;
+
+  // Update camera position based on swipe distance
+  targetY += swipeDistance * 0.02; // Adjust the multiplier for swipe sensitivity
+
+  // Update touchStartY for the next swipe
+  touchStartY = touchEndY;
+});
+
+// Prevent scrolling behavior on touchmove
+document.body.style.touchAction = 'none';
+
+
     // Animation loop
     const clock = new THREE.Clock();
     function animate() {
