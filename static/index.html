@@ -1,73 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Three.js GLB Animation with Scrollable Camera and HDR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carson</title>
+
+  <link rel="icon" type="image/x-icon" href="https://carsonmayn.com/static/favicon.png">
   <style>
+    nav:hover {
+      transform: translate(-50%, -10%) scale(1.5);
+      transition: all 0.3s;
+    }
+
+
+    #loading a{
+      text-decoration: none;
+      color: rgb(0, 0, 0);
+      background-color: #00ff4c;
+      padding: 10px;
+      border-radius: 20px;
+    }
+    nav {
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      background-color: #9f9f9f32;
+      position: fixed;
+      left: 50%;
+      padding: 20px;
+      border-radius: 30px;
+      z-index: 1000;
+      transform: translate(-50%, -30%) scale(0.9);
+      transition: all 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+    }
+
+    nav a {
+      display: block;
+      color: #f2f2f2;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      transition: all 0.3s;
+      transform: scale(1);
+      border-radius: 20px;
+    }
+
+    nav a:hover {
+      transform: scale(1.5);
+      transition: all 0.3s;
+      background: #ddd;
+      color: black;
+      margin-left: 30px;
+      margin-right: 30px;
+    }
+
     body {
       margin: 0;
       background-color: #000;
     }
+
     canvas {
       display: block;
       position: fixed;
       top: 0;
       left: 0;
     }
-    /* Loading spinner styles */
+
     #loading {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 20px;
-      color: white;
+      border-radius: 20px;
+      padding: 20px;
       display: block;
-      z-index: 1000;
-    }
-    #spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 2s linear infinite;
+      z-index: 10000000;
       text-align: center;
     }
+
+    #spinner {
+      border-radius: 50%;
+      animation: spin 4s cubic-bezier(.68, .16, .55, .66) infinite;
+      text-align: right;
+
+      border-radius: 20px;
+      padding: 20px;
+    }
+
     @keyframes spin {
-  0% {
-    transform: scaleX(1);
-  }
-  50% {
-    transform: scaleX(-1);
-  }
-  100% {
-    transform: scaleX(1);
-  }
-}
+      0% {
+        transform: scaleX(1);
+        color: #00ff4c;
+      }
 
-.spinning-object {
-  animation: spinZ 2s infinite;
-}
+      
 
+      25% {
+        transform: scaleX(0);
+        color: #00ff4c4e;
+      }
+
+      50% {
+        transform: scaleX(-1);
+        color: #00ff4c;
+      }
+
+      75% {
+        transform: scaleX(0);
+        color: #00ff4c4e;
+      }
+
+      100% {
+        transform: scaleX(1);
+        color: #00ff4c;
+      }
+    }
+
+    
+  </style>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    .title {
+      text-align: center;
+      color: white;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    h1 {
+      font-weight: 900;
+    }
+
+    p {
+      font-weight: 400;
+    }
   </style>
 </head>
+
 <body>
-  <!-- Loading Spinner -->
+  <nav>
+    <a href="#">Home</a>
+    <a href="contact">Contact</a>
+    <a href="portfolio">Portfolio</a>
+  </nav>
+  
   <div id="loading">
-    <div id="spinner"><h1>loading</h1>
-    <br>
-  <h2>its realy slow</h2></div>
+    <div id="spinner">
+      <h1 style="text-align: center;">Loading</h1>
+      <p id="slow1">What way is this <br> spinning anyway</p>
+
+      <br>
+    </div>
+    <a href="slow">Go to the slow device page</a>
   </div>
 
-  <!-- Load Three.js core library -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
-  <!-- Load additional Three.js loaders -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/RGBELoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
+  <style>
+    #slow1 {
+      visibility: hidden;
+      text-align: center;
+    }
+  </style>
+
   <script>
-    // Scene setup
+    setTimeout(() => {
+      document.getElementById("slow1").style.visibility = "visible";
+    }, 5000); // 10000 milliseconds = 10 seconds
+  </script>
+
+  <script src="3JS/scripts/3JS.js"></script>
+  <script src="3JS/scripts/GLBLOAD.js"></script>
+  <script src="3JS/scripts/HDRLOAD.js"></script>
+  <script>
+    console.log('"Inspect Element Is Not Hacking" \n-Carson')
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -79,19 +191,14 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Tone mapping and exposure
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1;
 
-    // HDR environment map
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
     pmremGenerator.compileEquirectangularShader();
 
-    // Loading complete flag
-    let loadingComplete = false;
-
     new THREE.RGBELoader()
-      .setPath('hdr/')
+      .setPath('3JS/hdr/')
       .load('test.hdr', function (texture) {
         const envMap = pmremGenerator.fromEquirectangular(texture).texture;
         scene.environment = envMap;
@@ -99,92 +206,92 @@
 
         texture.dispose();
         pmremGenerator.dispose();
-
-        checkLoadingComplete();
       });
 
-    // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
-    // Load GLB model with animations
     const loader = new THREE.GLTFLoader();
-    let mixer;
-    loader.load('scenes/test.glb', (gltf) => {
-      const model = gltf.scene;
-      scene.add(model);
+    const mixers = [];
 
-      // Apply environment map to model's materials
-      model.traverse((child) => {
-        if (child.isMesh && child.material.isMeshStandardMaterial) {
-          child.material.envMap = scene.environment;
-          child.material.needsUpdate = true;
-        }
-      });
+    function loadGLBsInOrder(urls, onFirstLoaded) {
+      let index = 0;
+      function loadNext() {
+        if (index >= urls.length) return;
+        loader.load(urls[index], (gltf) => {
+          const model = gltf.scene;
+          scene.add(model);
 
-      // Set up animation mixer
-      mixer = new THREE.AnimationMixer(model);
-      gltf.animations.forEach((clip) => {
-        mixer.clipAction(clip).play();
-      });
+          model.traverse((child) => {
+            if (child.isMesh && child.material.isMeshStandardMaterial) {
+              child.material.envMap = scene.environment;
+              child.material.needsUpdate = true;
+            }
+          });
 
-      checkLoadingComplete();
-    });
+          const mixer = new THREE.AnimationMixer(model);
+          gltf.animations.forEach((clip) => {
+            mixer.clipAction(clip).play();
+          });
+          mixers.push(mixer);
 
-    // Check if loading is complete
-    function checkLoadingComplete() {
-      if (loadingComplete) return;
-      loadingComplete = true;
-      document.getElementById('loading').style.display = 'none'; // Hide loading spinner
+          if (index === 0 && typeof onFirstLoaded === 'function') {
+            onFirstLoaded();
+          }
+
+          index++;
+          loadNext(); // Load the next one
+        });
+      }
+      loadNext();
     }
 
-    // Smooth scroll logic using event.deltaY
+    // Hide loading after first GLB is loaded
+    function hideLoadingScreen() {
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    // List of GLB files in order
+    const glbFiles = [
+      '3JS/scenes/main/top.glb',
+      '3JS/scenes/main/server.glb'
+      // Add more paths here
+    ];
+
+    loadGLBsInOrder(glbFiles, hideLoadingScreen);
+
+    // Camera scroll and animation loop
     let targetY = 0;
     let currentY = 0;
 
     window.addEventListener('wheel', (event) => {
       const scrollAmount = event.deltaY || event.detail || -event.wheelDelta;
-      targetY += scrollAmount * -0.01; // Adjust multiplier for scroll sensitivity
+      targetY += scrollAmount * -0.01;
     }, { passive: true });
 
     let touchStartY = 0;
-let touchEndY = 0;
+    let touchEndY = 0;
 
-// Touch start event
-window.addEventListener('touchstart', (event) => {
-  // Store the initial touch position
-  touchStartY = event.touches[0].clientY;
-});
+    window.addEventListener('touchstart', (event) => {
+      touchStartY = event.touches[0].clientY;
+    });
 
-// Touch move event
-window.addEventListener('touchmove', (event) => {
-  // Prevent scrolling behavior
-  event.preventDefault();
+    window.addEventListener('touchmove', (event) => {
+      event.preventDefault();
+      touchEndY = event.touches[0].clientY;
+      const swipeDistance = touchEndY - touchStartY;
+      targetY += swipeDistance * 0.02;
+      touchStartY = touchEndY;
+    });
 
-  // Calculate the swipe distance
-  touchEndY = event.touches[0].clientY;
-  const swipeDistance = touchEndY - touchStartY;
+    document.body.style.touchAction = 'none';
 
-  // Update camera position based on swipe distance
-  targetY += swipeDistance * 0.02; // Adjust the multiplier for swipe sensitivity
-
-  // Update touchStartY for the next swipe
-  touchStartY = touchEndY;
-});
-
-// Prevent scrolling behavior on touchmove
-document.body.style.touchAction = 'none';
-
-
-    // Animation loop
     const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
-
       const delta = clock.getDelta();
-      if (mixer) mixer.update(delta);
+      mixers.forEach((mixer) => mixer.update(delta));
 
-      // Smoothly move the camera
       currentY += (targetY - currentY) * 0.1;
       camera.position.y = currentY;
 
@@ -192,7 +299,6 @@ document.body.style.touchAction = 'none';
     }
     animate();
 
-    // Resize handler
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -200,4 +306,5 @@ document.body.style.touchAction = 'none';
     });
   </script>
 </body>
+
 </html>
