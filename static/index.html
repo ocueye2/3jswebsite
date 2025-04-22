@@ -148,8 +148,8 @@
 <body>
   <nav>
     <a href="#">Home</a>
-    <a href="contact">Contact</a>
-    <a href="portfolio">Portfolio</a>
+    <a href="/contact">Contact</a>
+    <a href="/portfolio">Portfolio</a>
   </nav>
   
   <div id="loading">
@@ -175,9 +175,9 @@
     }, 5000); // 10000 milliseconds = 10 seconds
   </script>
 
-  <script src="3JS/scripts/3JS.js"></script>
-  <script src="3JS/scripts/GLBLOAD.js"></script>
-  <script src="3JS/scripts/HDRLOAD.js"></script>
+  <script src="/3JS/scripts/3JS.js"></script>
+  <script src="/3JS/scripts/GLBLOAD.js"></script>
+  <script src="/3JS/scripts/HDRLOAD.js"></script>
   <script>
     console.log('"Inspect Element Is Not Hacking" \n-Carson')
     const scene = new THREE.Scene();
@@ -198,7 +198,7 @@
     pmremGenerator.compileEquirectangularShader();
 
     new THREE.RGBELoader()
-      .setPath('3JS/hdr/')
+      .setPath('/3JS/hdr/')
       .load('test.hdr', function (texture) {
         const envMap = pmremGenerator.fromEquirectangular(texture).texture;
         scene.environment = envMap;
@@ -253,8 +253,8 @@
 
     // List of GLB files in order
     const glbFiles = [
-      '3JS/scenes/main/top.glb',
-      '3JS/scenes/main/server.glb'
+      '/3JS/scenes/main/top.glb',
+      '/3JS/scenes/main/server.glb'
       // Add more paths here
     ];
 
